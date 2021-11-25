@@ -1,0 +1,30 @@
+#formula-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#formula-bar > span {
+    display: block;
+    
+    height: 1rem;
+    width: 10em;
+}
+
+#formula-bar > input {
+    flex-grow: 1;
+}
+
+
+table > * {
+    margin: 0;
+    padding: 0;
+}
+
+th, td {
+    width: 10em;
+}
+
+td {
+    border: 1px solid black;
+}
