@@ -53,8 +53,10 @@ export default class Table extends Component<TableProps, TableState> {
         this.forceUpdate()
     }
 
-    executeFormula = () => {
-
+    executeFormula = (row: number, col: number, formula: string) => {
+        
+        return eval(formula)
+        // return ""
     }
 
     render() {
@@ -77,6 +79,7 @@ export default class Table extends Component<TableProps, TableState> {
                     handleEditCell={this.handleEditCell}
                     handleChangedCells={this.handleChangedCell}
                     updateCells={this.updateCells}
+                    executeFormula={this.executeFormula}
                 />
             )
         }

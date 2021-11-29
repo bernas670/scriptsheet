@@ -11,6 +11,7 @@ interface CellProps {
 
     handleEditCell: (row: number, col: number, value: string) => void
     onChangedValue: (row: number, col: number, value: string) => void
+    executeFormula: (row: number, col: number, formula: string) => string
     updateCells: () => void
 }
 
@@ -70,7 +71,7 @@ export default class Cell extends Component<CellProps, CellState> {
         const newValue: string = e.target.value
 
         this.setState({ value: newValue })
-        this.display = this.determineValue(this.props.row, this.props.col, newValue)
+        // this.display = this.determineValue(this.props.row, this.props.col, newValue)
         this.props.handleEditCell(this.props.row, this.props.col, newValue)
     }
 
@@ -92,8 +93,10 @@ export default class Cell extends Component<CellProps, CellState> {
         // TODO: handle new value
     }
 
-    determineValue = (x: number, y: number, value: string) => {
-        // TODO: check if the value is a formula or not
+    determineValue = (row: number, col: number, value: string) => {
+        if (value.charAt(0) == "=") {
+            return this.props.executeFormula(row, col, value.slice(1))
+        }
 
         return value
     }

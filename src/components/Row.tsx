@@ -7,6 +7,7 @@ type RowProps = {
 
     handleEditCell: (row: number, col: number, value: string) => void
     handleChangedCells: (row: number, col: number, value: string) => void
+    executeFormula: (row: number, col: number, formula: string) => string
     updateCells: () => void
 }
 
@@ -26,6 +27,7 @@ const Row = (props: RowProps) => {
                     handleEditCell={props.handleEditCell}
                     onChangedValue={props.handleChangedCells}
                     updateCells={props.updateCells}
+                    executeFormula={props.executeFormula}
                 />
             </td>
         )

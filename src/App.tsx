@@ -9,7 +9,7 @@ function App() {
   return (
     <div>
       <div>
-        <Table rows={4} cols={4}></Table>
+        <Table rows={8} cols={8}></Table>
       </div>
     </div>
   );
