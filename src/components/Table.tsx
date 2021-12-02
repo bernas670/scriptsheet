@@ -49,14 +49,11 @@ export default class Table extends Component<TableProps, TableState> {
     }
 
     updateCells = () => {
-        // TODO: at the moment we are updating all cells whenever one updates
         this.forceUpdate()
     }
 
-    executeFormula = (row: number, col: number, formula: string) => {
-        
+    executeFormula = (row: number, col: number, formula: string) => {   
         return eval(formula)
-        // return ""
     }
 
     render() {

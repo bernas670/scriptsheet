@@ -22,8 +22,6 @@ interface CellState {
 }
 
 export default class Cell extends Component<CellProps, CellState> {
-    // value to be displayed
-    display: string = ''
 
     // used for click and double click
     timer: number = 0
@@ -36,11 +34,11 @@ export default class Cell extends Component<CellProps, CellState> {
         this.state = {
             value: props.value,
             editing: false,
-            selected: false
+            selected: false,
         }
-
-        this.display = this.determineValue(props.row, props.col, props.value)
     }
+
+
 
     componentDidMount() {
         window.document.addEventListener('unselectAll', this.handleUnselectAll)
@@ -63,15 +61,23 @@ export default class Cell extends Component<CellProps, CellState> {
 
     // before updating, execute formula to recalculate display value
     // useful when editing another cell that this one depends on
-    getSnapshotBeforeUpdate() {
-        this.display = this.determineValue(this.props.row, this.props.col, this.state.value)
+    componentWillUpdate() {
+        // this.display = this.determineValue(this.props.row, this.props.col, this.state.value)
+    }
+
+    shouldComponentUpdate(nextProps: CellProps, nextState: CellState) {
+        if (this.state.value !== '' && this.state.value.charAt(0) === '=')
+            return true
+
+        if (nextState !== this.state || nextProps !== this.props)
+            return true
+
+        return false
     }
 
     onChange = (e: ChangeEvent<HTMLInputElement>) => {
         const newValue: string = e.target.value
-
         this.setState({ value: newValue })
-        // this.display = this.determineValue(this.props.row, this.props.col, newValue)
         this.props.handleEditCell(this.props.row, this.props.col, newValue)
     }
 
@@ -87,14 +93,12 @@ export default class Cell extends Component<CellProps, CellState> {
     }
 
     hasNewValue = () => {
-        this.setState({ editing: false })
-
-        this.props.onChangedValue(this.props.row, this.props.col, this.display)
-        // TODO: handle new value
+        this.setState({ editing: false, selected: false })
+        this.props.onChangedValue(this.props.row, this.props.col, this.state.value)
     }
 
     determineValue = (row: number, col: number, value: string) => {
-        if (value.charAt(0) == "=") {
+        if (!this.state.editing && value.charAt(0) === "=") {
             return this.props.executeFormula(row, col, value.slice(1))
         }
 
@@ -140,7 +144,7 @@ export default class Cell extends Component<CellProps, CellState> {
             onClick={this.onClick}
             onDoubleClick={this.onDoubleClick}
         >
-            {this.props.value}
+            {this.determineValue(this.props.row, this.props.col, this.state.value)}
         </span>
     }
 }
