@@ -46,5 +46,8 @@
         "package.json",
         "README.md"
       ]
+    },
+    "ts-node": {
+      "files": true
     }
   }
