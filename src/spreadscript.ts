@@ -1,3 +1,5 @@
+import Formula from "./formula"
+
 const rows = 4, cols = 4
 
 let table: Cell[][] = []
@@ -16,18 +18,7 @@ for (let row = 0; row < rows; row++) {
     table.push(tmp)
 }
 
-type CellCoords = {
-    row: number,
-    col: number
-}
 
-type Cell = {
-    coords: CellCoords,
-    value: string,
-    result: string | number,
-    parents: CellCoords[]     // cells this cell depends on
-    children: CellCoords[]    // cells that depend on this cell
-}
 
 const isCyclic = (cell: Cell, visited: CellCoords[]): boolean => {
 
@@ -126,7 +117,32 @@ const Sum = (...cells: Cell[]): number => {
     }, 0)
 }
 
-// sum => { args, execute() => number }
+// sum => Formula { args, execute() => number }
+const Sum2 = (...cells: Cell[]): Formula => {
+    const f = (...cells: Cell[]) => cells.reduce((acc, cell) => {
+        if (typeof (cell.result) !== 'number')
+            throw new Error('#INVALID!')
+        return acc + cell.result
+    }, 0)
+
+    return new Formula(f, ...cells)
+}
+
+// const Sum3 = (...args: (number | Cell)[]): Formula => {
+//     const f = (...args: (number | Cell)[]) => args.reduce((acc, value) => {
+//         if (typeof value === 'Cell') {
+//             if (typeof value.result !== 'number')
+//                 throw new Error('#INVALID!')
+//             return acc + value.result
+//         } else if (typeof value !== 'number') {
+//             throw new Error('#INVALID!')
+//         }
+
+//         return acc + value
+//     }, 0)
+
+//     return new Formula(f, ...args)
+// }
 
 
 const Avg = (...cells: Cell[]): number => {
@@ -142,8 +158,15 @@ const Concat = (...cells: Cell[]): string => {
 
 modifyCell({ row: 0, col: 0 }, '3')
 modifyCell({ row: 1, col: 1 }, '2')
+modifyCell({ row: 2, col: 2 }, '4')
 console.log(Cell(0, 0))
 console.log(Cell(1, 1))
+
+const sum2 = Sum2(Cell(0, 0), Cell(1, 1))
+console.log(sum2.getDependencies())
+
+// const sum3 = Sum3(Cell(0, 0), Cell(1, 1), Cell(2,2), 3)
+// console.log(sum3.getDependencies())
 
 modifyCell({ row: 0, col: 1 }, '=Sum(Cell(0,0), Cell(1,1))')
 console.log(Cell(0, 1))

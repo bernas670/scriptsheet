@@ -1,0 +1,33 @@
+{
+  "name": "scriptsheet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "start": "ts-node ./src/main.ts",
+    "start:watch": "nodemon",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bernas670/scriptsheet.git"
+  },
+  "keywords": [
+    "spreasheet"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bernas670/scriptsheet/issues"
+  },
+  "homepage": "https://github.com/bernas670/scriptsheet#readme",
+  "devDependencies": {
+    "@digitak/esrun": "^2.0.5",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.4.0"
+  }
+}
