@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/bernas670/scriptsheet#readme",
   "devDependencies": {
-    "@digitak/esrun": "^2.0.5",
     "typescript": "^4.5.2"
   },
   "dependencies": {
     "nodemon": "^2.0.15",
+    "parsimmon": "^1.18.0",
     "ts-node": "^10.4.0"
   }
 }
