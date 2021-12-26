@@ -1,33 +1,67 @@
 import Cell from './cell'
+import { SCError } from './error'
 
 export abstract class Formula {
-    // private args: (Cell|string|number)[]
-    // private f: Function
 
-    // constructor(f: Function, ...args: (Cell|string|number)[]) {
-    //     this.args = args
-    //     this.f = f
-    // }
+    dependsOn: Set<Cell>
+    error: boolean = false
+    constructor(dependsOn: Cell[]) {
+        this.dependsOn = new Set<Cell>(dependsOn)
+    }
 
     // FIXME: what can we do about this
     execute(): number | string {
         return ""
     }
 
-    // getDependencies(): Cell[] {
-    //     return this.args.filter((arg): arg is Cell => true)
-    //     // return this.args.filter((arg: Cell) => typeof(arg) === typeof(Cell))
-    // }
+    isCyclic(cell: Cell | undefined, visited: Set<Cell>) {
+        if (cell !== undefined && visited.has(cell)) {
+            throw new SCError('#INVALID!')
+        }
+
+        for (let c of this.dependsOn) {
+            if (c._formula === undefined)
+                continue
+            
+            let updatedVisited = cell !== undefined ? visited.add(cell) : visited
+            c._formula.isCyclic(c, updatedVisited)
+        }
+    }
+
+    run(): number | string {
+        let result: number | string = ''
+
+        try {
+            this.isCyclic(undefined, new Set<Cell>())
+            result = this.execute()
+            this.error = false
+        } catch (error) {
+            this.error = true
+            if (error instanceof SCError) {
+                result = error.message
+            } else {
+                console.error(error)
+            }
+        }
+
+        return result
+    }
+}
+
+export class CellReference extends Formula {
+    constructor(public cell: Cell) { super([cell]) }
+
+    execute(): number | string { return this.cell.result }
 }
 
 export class Sum extends Formula {
     as: Array<Cell>
-    constructor(...as: Array<Cell>)  { super(); this.as = as }
+    constructor(...as: Array<Cell>) { super(as); this.as = as }
 
     execute(): number {
         return this.as.reduce((acc, cell) => {
             if (isNaN(+cell.result)) {
-                throw new Error('#INVALID!')
+                throw new SCError('#INVALID!')
             }
 
             return Number(cell.result) + acc
@@ -37,16 +71,16 @@ export class Sum extends Formula {
 
 export class Mul extends Formula {
     as: Array<Cell>
-    constructor(...as: Array<Cell>)  { super(); this.as = as }
+    constructor(...as: Array<Cell>) { super(as); this.as = as }
 }
 
 export class Div extends Formula {
     as: Array<Cell>
-    constructor(...as: Array<Cell>)  { super(); this.as = as }
+    constructor(...as: Array<Cell>) { super(as); this.as = as }
 }
 
 export class Sub extends Formula {
     as: Array<Cell>
-    constructor(...as: Array<Cell>)  { super(); this.as = as }
+    constructor(...as: Array<Cell>) { super(as); this.as = as }
 }
 

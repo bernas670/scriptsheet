@@ -48,9 +48,7 @@ export default class ScriptSheet {
                 if (line.startsWith("=")) {
                     try {
                         let formula: Formula = this.parser.tryParse(line.slice(1))
-                        selectedCell.formula = formula
-                        // TODO: add formula to cell
-        
+                        selectedCell.modifyCell(formula)
                         inputState = 'cell'
                         rl.setPrompt("cell > ")
                         console.clear()
@@ -62,9 +60,8 @@ export default class ScriptSheet {
                     inputState = 'cell'
                     rl.setPrompt("cell > ")
                     console.clear()
-                    selectedCell.result = line
+                    selectedCell.modifyCell(line)
                     this.table.display()
-                    // TODO: add value to cell
                 }
             }
             rl.prompt()

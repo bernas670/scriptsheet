@@ -1,30 +1,47 @@
 import { Formula } from "./formula";
 
-export default class Cell extends Formula {
+export default class Cell {
 
     _formula: Formula | undefined
     _result: string | number = ''
-    parents: Cell[] = []
-    children: Cell[] = []
+    parents: Set<Cell> = new Set<Cell>()
+    children: Set<Cell> = new Set<Cell>()
 
-    constructor(public row: number, public col: string) { super() }
+    constructor(public row: number, public col: string) { }
 
-    set formula(value: Formula) {
-        this._formula = value
+    get result() { return this._result }
 
-        try {
-            this._result = value.execute()
-        } catch (error) {
-            if (error instanceof Error)
-                this._result = error.message
+    modifyCell(value: string | number | Formula) {
+        let newResult: string | number = ''
+
+        if (value instanceof Formula) {
+            this.parents.forEach((cell) => cell.children.delete(this))
+            this._formula = value
+            this.parents = value.dependsOn
+            this.parents.forEach((cell) => cell.children.add(this))
+
+            newResult = value.run()
+        } else {
+            newResult = isNaN(+value) ? value : Number(value)
         }
+
+        if (this._result === newResult)
+            return
+
+        this._result = newResult
+
+        this.children.forEach((child) => child.updateCell())
     }
 
-    set result(value: string | number) {
-        this._result = isNaN(+value) ? value : Number(value)
-    }
+    updateCell() {
+        if (this._formula === undefined)
+            return
 
-    get result() {
-        return this._result
+        const newResult = this._formula.run()
+        if (this._result === newResult)
+            return
+
+        this._result = newResult
+        this.children.forEach((cell) => cell.updateCell())
     }
 }
