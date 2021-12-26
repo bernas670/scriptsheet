@@ -32,6 +32,21 @@ export default class Table {
         return this.cells[row - 1][col.toUpperCase().charCodeAt(0) - 65]
     }
 
+    getRange(start: {row: number, col: string}, end: {row: number, col: string}): Cell[] {
+        let result: Cell[] = []
+
+        let startCol = start.col.toUpperCase().charCodeAt(0) - 65
+        let endCol = end.col.toUpperCase().charCodeAt(0) - 65
+
+        for (let row = start.row; row <= end.row; row++) {
+            for (let col = startCol; col <= endCol; col++) {
+                result.push(this.cells[row - 1][col])
+            }
+        }
+        
+        return result
+    }
+
     checkCellRef(cell: string) {
         let row = parseInt(cell[1], 10)
         let col = cell.toUpperCase().charCodeAt(0) - 65
