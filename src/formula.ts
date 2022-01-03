@@ -28,11 +28,11 @@ export abstract class Formula {
         }
     }
 
-    run(): number | string {
+    run(checkCycle = false): number | string {
         let result: number | string = ''
 
         try {
-            this.isCyclic(undefined, new Set<Cell>())
+            if (checkCycle) this.isCyclic(undefined, new Set<Cell>())
             result = this.execute()
             this.error = false
         } catch (error) {

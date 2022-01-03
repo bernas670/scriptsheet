@@ -3,6 +3,7 @@
       "outDir": "./build",
       "rootDir": "./src",
       "target": "esnext",
+      "sourceMap": true,
       "lib": [
         "dom",
         "dom.iterable",

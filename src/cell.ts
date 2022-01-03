@@ -15,13 +15,16 @@ export default class Cell {
         let newResult: string | number = ''
 
         if (value instanceof Formula) {
+            // console.log(`${this.col}${this.row} old: ${[...this.parents].map((c) => `${c.col}${c.row}`)}`)
             this.parents.forEach((cell) => cell.children.delete(this))
             this._formula = value
             this.parents = value.dependsOn
             this.parents.forEach((cell) => cell.children.add(this))
+            // console.log(`${this.col}${this.row} new: ${[...this.parents].map((c) => `${c.col}${c.row}`)}`)
 
-            newResult = value.run()
+            newResult = value.run(true)
         } else {
+            this._formula = undefined
             newResult = isNaN(+value) ? value : Number(value)
         }
 
@@ -34,12 +37,16 @@ export default class Cell {
     }
 
     updateCell() {
+        console.log(`${this.col}${this.row} updated`)
+
         if (this._formula === undefined)
             return
 
         const newResult = this._formula.run()
-        if (this._result === newResult)
+        if (this._result === newResult){
+            console.log(`${this.col}${this.row}: ${newResult} === ${this._result}`)
             return
+        }
 
         this._result = newResult
         this.children.forEach((cell) => cell.updateCell())
