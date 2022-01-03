@@ -4,7 +4,6 @@ import { SCError } from './error'
 export abstract class Formula {
 
     dependsOn: Set<Cell>
-    error: boolean = false
     constructor(dependsOn: Cell[]) {
         this.dependsOn = new Set<Cell>(dependsOn)
     }
@@ -34,9 +33,7 @@ export abstract class Formula {
         try {
             if (checkCycle) this.isCyclic(undefined, new Set<Cell>())
             result = this.execute()
-            this.error = false
         } catch (error) {
-            this.error = true
             if (error instanceof SCError) {
                 result = error.message
             } else {
