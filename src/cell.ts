@@ -1,13 +1,17 @@
 import { Formula } from "./formula";
+import { setDiff } from "./utils";
 
 export default class Cell {
 
+    name: string
     _formula: Formula | undefined
     _result: string | number = ''
     parents: Set<Cell> = new Set<Cell>()
     children: Set<Cell> = new Set<Cell>()
 
-    constructor(public row: number, public col: string) { }
+    constructor(public row: number, public col: string) {
+        this.name = `${col}${row}`
+    }
 
     get result() { return this._result }
 
@@ -15,16 +19,20 @@ export default class Cell {
         let newResult: string | number = ''
 
         if (value instanceof Formula) {
-            // console.log(`${this.col}${this.row} old: ${[...this.parents].map((c) => `${c.col}${c.row}`)}`)
-            this.parents.forEach((cell) => cell.children.delete(this))
             this._formula = value
-            this.parents = value.dependsOn
-            this.parents.forEach((cell) => cell.children.add(this))
-            // console.log(`${this.col}${this.row} new: ${[...this.parents].map((c) => `${c.col}${c.row}`)}`)
 
+            // remove as child from old parents
+            setDiff(this.parents, this._formula.dependsOn).forEach(c => c.children.delete(this))
+            // add as child to new parents
+            setDiff(this._formula.dependsOn, this.parents).forEach(c => c.children.add(this))
+
+            this.parents = this._formula.dependsOn
             newResult = value.run(true)
         } else {
             this._formula = undefined
+            this.parents.forEach(c => c.children.delete(this))
+            this.parents.clear()
+
             newResult = isNaN(+value) ? value : Number(value)
         }
 
@@ -37,14 +45,14 @@ export default class Cell {
     }
 
     updateCell() {
-        console.log(`${this.col}${this.row} updated`)
+        // console.log(`${this.col}${this.row} updated`)
 
         if (this._formula === undefined)
             return
 
         const newResult = this._formula.run()
         if (this._result === newResult){
-            console.log(`${this.col}${this.row}: ${newResult} === ${this._result}`)
+            // console.log(`${this.col}${this.row}: ${newResult} === ${this._result}`)
             return
         }
 

@@ -26,6 +26,26 @@ export default class Table {
         }
     
         console.table(display)
+        this.displayDependencies()
+    }
+
+    displayDependencies(): void {
+        let display: Record<string, {Parents: string[], Children: string[]}> = {}
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                let cell = this.cells[i][j]
+
+                if (cell.parents.size === 0 && cell.children.size === 0)
+                    continue
+
+                display[cell.name] = {
+                    Parents: [...cell.parents].map(c => c.name), 
+                    Children: [...cell.children].map(c => c.name)
+                }
+            }
+        }
+        
+        console.table(display)
     }
 
     getCell(row: number, col: string): Cell {
