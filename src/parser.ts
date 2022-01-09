@@ -6,24 +6,27 @@ import Cell from './cell'
 
 
 type Grammar = {
-    // command: void,
+    command: void
 
-    // //commands
-    // commands: void,
-    help: void,
-    // display: void,
+    // commands
+    help: void
 
-    // // cell operations
-    // assign: void,
-    // formula: F.Sum | F.Div | F.Mul | F.Sub | F.CellReference,
-    // sumFormula: F.Sum,
-    // rangeCells: Array<Cell>,
-    // cellReference: F.CellReference,
-    // cellFormula: Cell,
+    cell: Cell
+    assign: void
+    formula: F.Formula
+    string: string
 
-    // // literals
-    // letters: string,
-    // numbers: number,
+    // operations
+    sum: F.Sum
+    cellRef: F.CellReference
+
+    // utils
+    range: Cell[]
+
+    // literals
+    letters: string
+    numbers: number
+
 }
 
 export default class Parser {
@@ -32,37 +35,42 @@ export default class Parser {
 
     constructor(public table: Table) {
         this.language = P.createLanguage<Grammar>({
-            // command: l => alt(seq(string("/"), l.commands), l.assign),
+            command: l => alt(seq(string("/"), alt(l.help)), l.assign),
 
-            // // commands
-            // commands: l => alt(l.help, l.display),
-            help: _ => string("help").map(_ => console.log("help command output")),
-            // display: _ => string("display").map(_ => console.log("display command")),
+            help: () => string("help").map(_ => console.log("this is the help command output")),
 
-            // // table operations
-            // assign: l => P.seq(l.cellFormula, P.string("="), P.alt(l.formula, l.letters, l.numbers))
-            //     .map(([cell, _, value]) => cell.modifyCell(value)),
+            // FIXME: there is some ambiguity here that i dont understand
+            assign: l => seq(l.cell, string("="), alt(l.string, l.formula)) //alt(l.string, l.numbers, l.formula))
+                .map(([cell, _, value]) => {
+                    console.log(cell.name)
+                    console.log(value)
+                    return cell.modifyCell(value)}),
 
-            // formula: l => P.alt(l.sumFormula, l.cellReference),
+            formula: l => alt(l.sum, l.cellRef),
 
-            // cellFormula: l => P.seq(l.letters, l.numbers)
-            //     .map(([col, row]) => this.table.getCell(row, col)),
+            string: l => l.letters.wrap(string("\""), string("\""))
+                .map((str) => str),
 
-            // cellReference: l => P.seq(l.cellFormula)
-            //     .map(([cell]) => new F.CellReference(cell)),
+            cellRef: l => l.cell
+                .map((cell) => new F.CellReference(cell)),
 
-            // rangeCells: l => P.seq(l.cellFormula, string(':'), l.cellFormula)
-            //     .map(([a, _, b]) => this.table.getRange(a, b)),
+            sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
+                .map(([_, range]) => new F.Sum(...range)),
 
-            // sumFormula: l => P.seq(P.string('SUM('), l.rangeCells, P.string(')'))
-            //     .map(([_, rangeArray, __]) => new F.Sum(...rangeArray)),
+            range: l => seq(l.cell, string(':'), l.cell)
+                .map(([a, _, b]) => this.table.getRange(a, b)),
 
-            // numbers: _ => P.digits.map(n => parseInt(n, 10)),
-            // letters: _ => P.letters
+            cell: l => seq(l.letters, l.numbers)
+                .map(([col, row]) => {
+                    console.log(`col: ${col} row: ${row}`)
+                    return this.table.getCell(row, col)}),
+
+            numbers: () => P.digits.map(n => parseInt(n, 10)),
+            letters: () => P.letters
         })
     }
 
     tryParse(cmd: string) {
-        return this.language.help.tryParse(cmd)
+        return this.language.command.tryParse(cmd)
     }
 }

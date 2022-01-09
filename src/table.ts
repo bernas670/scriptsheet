@@ -26,7 +26,6 @@ export default class Table {
         }
     
         console.table(display)
-        this.displayDependencies()
     }
 
     displayDependencies(): void {
