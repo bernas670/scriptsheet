@@ -14,8 +14,12 @@ function range(start: number, end: number): number[] {
 }
 
 type Grammar = {
-    formula: F.Sum | F.Div | F.Mul | F.Sub | F.CellReference,
+    formula: F.Sum | F.Div | F.Mul | F.Sub | F.Avrg | F.CellReference,
     sumFormula: F.Sum,
+    divFormula: F.Div,
+    mulFormula: F.Mul,
+    subFormula: F.Sub,
+    avrgFormula: F.Avrg,
     rangeCells: Array<Cell>,
     cellReference: F.CellReference,
     cellFormula: Cell,
@@ -43,6 +47,18 @@ export default class Parser {
 
             sumFormula: l => P.seq(P.string('SUM('), l.rangeCells, P.string(')'))
                 .map(([_, rangeArray, __]) => new F.Sum(...rangeArray)),
+
+            divFormula: l => P.seq(P.string('DIV('), l.rangeCells, P.string(')'))
+                .map(([_, rangeArray, __]) => new F.Div(...rangeArray)),
+
+            mulFormula: l => P.seq(P.string('MUL('), l.rangeCells, P.string(')'))
+                .map(([_, rangeArray, __]) => new F.Mul(...rangeArray)),
+
+            subFormula: l => P.seq(P.string('SUB('), l.rangeCells, P.string(')'))
+                .map(([_, rangeArray, __]) => new F.Sub(...rangeArray)),
+            
+            avrgFormula: l => P.seq(P.string('AVERAGE('), l.rangeCells, P.string(')'))
+                .map(([_, rangeArray, __]) => new F.Avrg(...rangeArray)),
 
             numberLiteral: _ => P.digits.map(row => parseInt(row, 10)),
             stringLiteral: _ => P.letters
