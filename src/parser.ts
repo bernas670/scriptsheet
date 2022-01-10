@@ -24,9 +24,8 @@ type Grammar = {
     range: Cell[]
 
     // literals
-    letters: string
-    numbers: number
-
+    int: number
+    number: number
 }
 
 export default class Parser {
@@ -39,16 +38,12 @@ export default class Parser {
 
             help: () => string("help").map(_ => console.log("this is the help command output")),
 
-            // FIXME: there is some ambiguity here that i dont understand
-            assign: l => seq(l.cell, string("="), alt(l.string, l.formula)) //alt(l.string, l.numbers, l.formula))
-                .map(([cell, _, value]) => {
-                    console.log(cell.name)
-                    console.log(value)
-                    return cell.modifyCell(value)}),
+            assign: l => seq(l.cell, string("="), alt(l.string, l.formula, l.number))
+                .map(([cell, _, value]) => cell.modifyCell(value)),
 
             formula: l => alt(l.sum, l.cellRef),
 
-            string: l => l.letters.wrap(string("\""), string("\""))
+            string: () => P.regexp(/[A-Za-z0-9 _\.,!?'/$]*/).wrap(string("\""), string("\""))
                 .map((str) => str),
 
             cellRef: l => l.cell
@@ -60,13 +55,11 @@ export default class Parser {
             range: l => seq(l.cell, string(':'), l.cell)
                 .map(([a, _, b]) => this.table.getRange(a, b)),
 
-            cell: l => seq(l.letters, l.numbers)
-                .map(([col, row]) => {
-                    console.log(`col: ${col} row: ${row}`)
-                    return this.table.getCell(row, col)}),
-
-            numbers: () => P.digits.map(n => parseInt(n, 10)),
-            letters: () => P.letters
+            cell: l => seq(P.regexp(/[a-z]+/i), l.int)
+                .map(([col, row]) => this.table.getCell(row, col)),
+            
+            int: () => P.regexp(/[0-9]+/).map(n => parseInt(n, 10)),
+            number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n))
         })
     }
 
