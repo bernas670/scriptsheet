@@ -4,15 +4,18 @@ import * as F from "./formula"
 import Table from './table'
 import Cell from './cell'
 
+import * as Cmd from './command'
+
 
 type Grammar = {
-    command: void
+    command: Cmd.Command
 
     // commands
-    help: void
+    help: Cmd.Help
+    dependencies: Cmd.DisplayDependencies
 
     cell: Cell
-    assign: void
+    assign: Cmd.Assign
     formula: F.Formula
     string: string
 
@@ -40,14 +43,15 @@ export default class Parser {
 
     constructor(public table: Table) {
         this.language = P.createLanguage<Grammar>({
-            command: l => alt(seq(string("/"), alt(l.help)), l.assign),
+            command: l => alt(l.help, l.dependencies, l.assign).map((cmd) => cmd),
 
             // commands
-            help: () => string("help").map(_ => console.log("this is the help command output")),
+            help: () => string("/help").map(_ => new Cmd.Help()),
+            dependencies: () => string("/dependencies").map(_ => new Cmd.DisplayDependencies(this.table)),
 
 
             assign: l => seq(l.cell, string("="), alt(l.string, l.formula, l.number))
-                .map(([cell, _, value]) => cell.modifyCell(value)),
+                .map(([cell, _, value]) => new Cmd.Assign(this.table, cell, value)),
             
             string: () => P.regexp(/[A-Za-z0-9 _\.,!?'/$]*/).wrap(string("\""), string("\""))
                 .map((str) => str),
@@ -88,7 +92,7 @@ export default class Parser {
         })
     }
 
-    tryParse(cmd: string) {
+    tryParse(cmd: string): any {
         return this.language.command.tryParse(cmd)
     }
 }
