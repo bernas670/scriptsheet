@@ -69,15 +69,60 @@ export class Sum extends Formula {
 export class Mul extends Formula {
     as: Array<Cell>
     constructor(...as: Array<Cell>) { super(as); this.as = as }
+
+    execute(): number {
+        return this.as.reduce((acc, cell) => {
+            if (isNaN(+cell.result)) {
+                throw new SCError('#INVALID!')
+            }
+
+            return Number(cell.result) * acc
+        }, 0)
+    }
 }
 
 export class Div extends Formula {
     as: Array<Cell>
     constructor(...as: Array<Cell>) { super(as); this.as = as }
+
+    execute(): number {
+        return this.as.reduce((acc, cell) => {
+            if (isNaN(+cell.result)) {
+                throw new SCError('#INVALID!')
+            }
+
+            return Number(cell.result) / acc
+        }, 0)
+    }
 }
 
 export class Sub extends Formula {
     as: Array<Cell>
     constructor(...as: Array<Cell>) { super(as); this.as = as }
+
+    execute(): number {
+        return this.as.reduce((acc, cell) => {
+            if (isNaN(+cell.result)) {
+                throw new SCError('#INVALID!')
+            }
+
+            return Number(cell.result) - acc
+        }, 0)
+    }
+}
+
+export class Avrg extends Formula {
+    as: Array<Cell>
+    constructor(...as: Array<Cell>) { super(as); this.as = as }
+
+    execute(): number {
+        return this.as.reduce((acc, cell) => {
+            if (isNaN(+cell.result)) {
+                throw new SCError('#INVALID!')
+            }
+
+            return Number(cell.result) + acc
+        }, 0) /this.as.length
+    }
 }
 
