@@ -71,17 +71,17 @@ export default class Parser {
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Sum(...range)),
 
-            div: l => seq(string('div'), l.range).wrap(string("\""), string("\""))
-                .map(([_, rangeArray]) => new F.Div(...rangeArray)),
+            div: l => seq(string('div'), l.range.wrap(string("("), string(")")))
+                .map(([_, range]) => new F.Div(...range)),
 
-            mul: l => seq(string('mul'), l.range).wrap(string("\""), string("\""))
-                .map(([_, rangeArray]) => new F.Mul(...rangeArray)),
+            mul: l => seq(string('mul'), l.range.wrap(string("("), string(")")))
+                .map(([_, range]) => new F.Mul(...range)),
 
-            sub: l => seq(string('sub'), l.range).wrap(string("\""), string("\""))
-                .map(([_, rangeArray]) => new F.Sub(...rangeArray)),
+            sub: l => seq(string('sub'), l.range.wrap(string("("), string(")")))
+                .map(([_, range]) => new F.Sub(...range)),
 
-            avg: l => seq(string('avg'), l.range).wrap(string("\""), string("\""))
-                .map(([_, rangeArray]) => new F.Avrg(...rangeArray)),
+            avg: l => seq(string('avg'), l.range.wrap(string("("), string(")")))
+                .map(([_, range]) => new F.Avrg(...range)),
 
 
             // 
