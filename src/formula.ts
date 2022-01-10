@@ -126,3 +126,35 @@ export class Avrg extends Formula {
     }
 }
 
+export class Arithmetic extends Formula {
+    
+    constructor(public arg1: Cell | number, public op: String, public arg2: Cell | number) { 
+        let as: Array<Cell> = []
+        if(arg1 instanceof Cell) as.push(arg1)
+        if(arg2 instanceof Cell) as.push(arg2)
+
+        super(as)
+    }
+
+    execute(): number { 
+        let value1: number
+        let value2: number
+
+        if(this.arg1 instanceof Cell) {
+            if (isNaN(+this.arg1.result)) {
+                throw new SCError('#INVALID!')
+            }
+            value1 = this.arg1.result as number
+        } else value1 = this.arg1
+
+        if(this.arg2 instanceof Cell) {
+            if (isNaN(+this.arg2.result)) {
+                throw new SCError('#INVALID!')
+            }
+            value2 = this.arg2.result as number
+        } else value2= this.arg2
+        
+
+        return eval(value1.toString() + ' ' + this.op + ' ' + value2.toString());
+    }
+}

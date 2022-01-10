@@ -23,6 +23,7 @@ type Grammar = {
     sub: F.Sub
     avg: F.Avrg
     cellRef: F.CellReference
+    artm: F.Arithmetic
 
     // utils
     range: Cell[]
@@ -55,10 +56,13 @@ export default class Parser {
             number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n)),
 
             // formulas
-            formula: l => alt(l.sum, l.cellRef, l.sum, l.mul, l.div, l.sub, l.avg),
+            formula: l => alt(l.artm, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
 
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
+
+            artm: l => seq(alt(l.cell, l.number), alt(string('+'),string('-'),string('*'),string('/')), alt(l.cell, l.number))
+                .map(([arg1, op, arg2]) => new F.Arithmetic(arg1, op, arg2)),
 
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Sum(...range)),
