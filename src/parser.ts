@@ -53,7 +53,7 @@ export default class Parser {
 
             assign: l => seq(l.cell, string("="), alt(l.string, l.formula, l.number))
                 .map(([cell, _, value]) => new Cmd.Assign(this.table, cell, value)),
-            
+
             string: () => P.regexp(/[A-Za-z0-9 _\.,!?'/$]*/).wrap(string("\""), string("\""))
                 .map((str) => str),
 
@@ -65,7 +65,7 @@ export default class Parser {
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
 
-            artm: l => seq(alt(l.cell, l.number), alt(string('+'),string('-'),string('*'),string('/')), alt(l.cell, l.number))
+            artm: l => seq(alt(l.cell, l.number), P.regexp(/\+|-|\*|\//), alt(l.cell, l.number))
                 .map(([arg1, op, arg2]) => new F.Arithmetic(arg1, op, arg2)),
 
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
@@ -90,7 +90,7 @@ export default class Parser {
 
             cell: l => seq(P.regexp(/[a-z]+/i), l.int)
                 .map(([col, row]) => this.table.getCell(row, col)),
-            
+
             // literals
             int: () => P.regexp(/[0-9]+/).map(n => parseInt(n, 10)),
         })
