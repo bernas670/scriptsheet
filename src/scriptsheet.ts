@@ -37,7 +37,7 @@ export default class ScriptSheet {
                 error = e
         }
 
-        callback(error, "")
+        callback(error, undefined)
     }
 
     completer(line: string) {
@@ -89,7 +89,9 @@ export default class ScriptSheet {
             prompt: 'scriptsheet > ',
             eval: this.eval.bind(this),
             completer: this.completer.bind(this),
-            terminal: true
+            terminal: true,
+            ignoreUndefined: true,
+            preview: false
         })
     }
 }
