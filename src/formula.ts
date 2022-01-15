@@ -158,3 +158,84 @@ export class Arithmetic extends Formula {
         return eval(value1.toString() + ' ' + this.op + ' ' + value2.toString());
     }
 }
+
+export class If extends Formula {
+
+    constructor(public arg1: Cell | number, public op: string, public arg2: Cell | number, public result1: string | number | Cell, public result2: string | number | Cell) {
+        let as: Array<Cell> = []
+        if (arg1 instanceof Cell) as.push(arg1)
+        if (arg2 instanceof Cell) as.push(arg2)
+        if (result1 instanceof Cell) as.push(result1)
+        if (result2 instanceof Cell) as.push(result2)
+
+        super(as)
+    }
+
+    execute(): string | number {
+        
+        let value1: number
+        let value2: number
+        let output1: string | number
+        let output2: string | number
+
+        if (this.arg1 instanceof Cell) {
+            if (isNaN(+this.arg1.result)) {
+                throw new SCError('#INVALID!')
+            }
+            value1 = this.arg1.result as number
+        } else value1 = this.arg1
+
+        if (this.arg2 instanceof Cell) {
+            if (isNaN(+this.arg2.result)) {
+                throw new SCError('#INVALID!')
+            }
+            value2 = this.arg2.result as number
+        } else value2 = this.arg2
+
+        if (this.result1 instanceof Cell) {
+            // if (isNaN(+this.result1.result)) {
+            //     throw new SCError('#INVALID!')
+            // }
+            output1 = this.result1.result 
+        } else output1 = this.result1
+
+        if (this.result2 instanceof Cell) {
+            // if (isNaN(+this.result2.result)) {
+            //     throw new SCError('#INVALID!')
+            // }
+            output2 = this.result2.result 
+        } else output2 = this.result2
+
+
+        switch(this.op){
+            case ">": {
+                if(value1 > value2) return output1
+                else return output2
+            }
+            case "<": {
+                if(value1 < value2) return output1
+                else return output2
+            }
+            case "==": {
+                if(value1 == value2) return output1
+                else return output2
+            }
+            case "!=": {
+                if(value1 != value2) return output1
+                else return output2
+            }
+            case ">=": {
+                if(value1 >= value2) return output1
+                else return output2
+            }
+            case "<=": {
+                if(value1 <= value2) return output1
+                else return output2
+            }
+            default: {
+                throw new SCError('#INVALID!')
+            }
+        }
+    }
+
+}

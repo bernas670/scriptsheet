@@ -5,6 +5,7 @@ import Table from './table'
 import Cell from './cell'
 
 import * as Cmd from './command'
+import { kill } from 'process'
 
 
 type Grammar = {
@@ -25,6 +26,7 @@ type Grammar = {
     mul: F.Mul
     sub: F.Sub
     avg: F.Avrg
+    if: F.If
     cellRef: F.CellReference
     artm: F.Arithmetic
 
@@ -60,7 +62,7 @@ export default class Parser {
             number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n)),
 
             // formulas
-            formula: l => alt(l.artm, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
+            formula: l => alt(l.if, l.artm, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
 
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
@@ -82,7 +84,8 @@ export default class Parser {
 
             avg: l => seq(string('avg'), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Avrg(...range)),
-
+            if: l => seq(string("if"), string("("), alt(l.cell, l.number), P.regexp(/\>|<|==|!=|>=|<=|\//), alt(l.cell, l.number), string(","), alt(l.cell, l.string, l.number), string(","), alt(l.cell, l.string, l.number), string(")")) 
+                .map(([_, __, arg1, op, arg2, ___, result1, ____, result2, _____]) => new F.If(arg1, op, arg2, result1, result2)),
 
             // 
             range: l => seq(l.cell, string(':'), l.cell)
