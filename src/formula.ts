@@ -161,12 +161,45 @@ export class Arithmetic extends Formula {
 
 export class If extends Formula {
 
-    constructor(public arg1: Cell | number, public op: string, public arg2: Cell | number, public result1: string | number | Cell, public result2: string | number | Cell) {
+    constructor(public arg1: Cell | number | Formula, 
+                public op: string, 
+                public arg2: Cell | number | Formula, 
+                public result1: string | number | Cell | Formula, 
+                public result2: string | number | Cell | Formula) {
+
         let as: Array<Cell> = []
         if (arg1 instanceof Cell) as.push(arg1)
         if (arg2 instanceof Cell) as.push(arg2)
         if (result1 instanceof Cell) as.push(result1)
         if (result2 instanceof Cell) as.push(result2)
+        if (arg1 instanceof Formula) {
+            let aux: Formula = arg1 as Formula
+
+                for(let cell of aux.dependsOn) {
+                    as.push(cell as Cell)
+                }
+        }
+        if (arg2 instanceof Formula) {
+            let aux: Formula = arg2 as Formula
+
+                for(let cell of aux.dependsOn) {
+                    as.push(cell as Cell)
+                }
+        }
+        if (result1 instanceof Formula) {
+            let aux: Formula = result1 as Formula
+
+                for(let cell of aux.dependsOn) {
+                    as.push(cell as Cell)
+                }
+        }
+        if (result2 instanceof Formula) {
+            let aux: Formula = result2 as Formula
+
+                for(let cell of aux.dependsOn) {
+                    as.push(cell as Cell)
+                }
+        }
 
         super(as)
     }
@@ -183,6 +216,8 @@ export class If extends Formula {
                 throw new SCError('#INVALID!')
             }
             value1 = this.arg1.result as number
+        } else if(this.arg1 instanceof Formula) {
+            value1 = this.arg1.execute() as number
         } else value1 = this.arg1
 
         if (this.arg2 instanceof Cell) {
@@ -190,6 +225,8 @@ export class If extends Formula {
                 throw new SCError('#INVALID!')
             }
             value2 = this.arg2.result as number
+        } else if(this.arg2 instanceof Formula) {
+            value2 = this.arg2.execute() as number
         } else value2 = this.arg2
 
         if (this.result1 instanceof Cell) {
@@ -197,13 +234,17 @@ export class If extends Formula {
             //     throw new SCError('#INVALID!')
             // }
             output1 = this.result1.result 
+        } else if(this.result1 instanceof Formula) {
+            output1 = this.result1.execute() as number
         } else output1 = this.result1
 
         if (this.result2 instanceof Cell) {
             // if (isNaN(+this.result2.result)) {
             //     throw new SCError('#INVALID!')
             // }
-            output2 = this.result2.result 
+            output2 = this.result2.result
+        } else if(this.result2 instanceof Formula) {
+            output2 = this.result2.execute() as number
         } else output2 = this.result2
 
 

@@ -84,7 +84,9 @@ export default class Parser {
 
             avg: l => seq(string('avg'), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Avrg(...range)),
-            if: l => seq(string("if"), string("("), alt(l.cell, l.number), P.regexp(/\>|<|==|!=|>=|<=|\//), alt(l.cell, l.number), string(","), alt(l.cell, l.string, l.number), string(","), alt(l.cell, l.string, l.number), string(")")) 
+            if: l => seq(string("if"), string("("), alt(l.formula, l.cell, l.number),
+                P.regexp(/\>|<|==|!=|>=|<=|\//), alt(l.formula, l.cell, l.number), string(","),
+                alt(l.formula, l.cell, l.string, l.number), string(","), alt(l.formula, l.cell, l.string, l.number), string(")")) 
                 .map(([_, __, arg1, op, arg2, ___, result1, ____, result2, _____]) => new F.If(arg1, op, arg2, result1, result2)),
 
             // 
