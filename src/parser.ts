@@ -21,9 +21,9 @@ type Grammar = {
 
     // operations
     sum: F.Sum
-    div: F.Div
-    mul: F.Mul
-    sub: F.Sub
+    // div: F.Div
+    // mul: F.Mul
+    // sub: F.Sub
     avg: F.Avrg
     cellRef: F.CellReference
     artm: F.Arithmetic
@@ -60,25 +60,25 @@ export default class Parser {
             number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n)),
 
             // formulas
-            formula: l => alt(l.artm, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
+            formula: l => alt(l.sum, l.artm, l.avg, l.cellRef),
 
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
 
-            artm: l => seq(alt(l.cell, l.number), P.regexp(/\+|-|\*|\//), alt(l.cell, l.number))
+            artm: l => seq(alt(l.cell, l.number, l.formula), P.regexp(/\+|-|\*|\//), alt(l.cell, l.number, l.formula))
                 .map(([arg1, op, arg2]) => new F.Arithmetic(arg1, op, arg2)),
 
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Sum(...range)),
 
-            div: l => seq(string('div'), l.range.wrap(string("("), string(")")))
-                .map(([_, range]) => new F.Div(...range)),
+            // div: l => seq(string('div'), l.range.wrap(string("("), string(")")))
+            //     .map(([_, range]) => new F.Div(...range)),
 
-            mul: l => seq(string('mul'), l.range.wrap(string("("), string(")")))
-                .map(([_, range]) => new F.Mul(...range)),
+            // mul: l => seq(string('mul'), l.range.wrap(string("("), string(")")))
+            //     .map(([_, range]) => new F.Mul(...range)),
 
-            sub: l => seq(string('sub'), l.range.wrap(string("("), string(")")))
-                .map(([_, range]) => new F.Sub(...range)),
+            // sub: l => seq(string('sub'), l.range.wrap(string("("), string(")")))
+            //     .map(([_, range]) => new F.Sub(...range)),
 
             avg: l => seq(string('avg'), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Avrg(...range)),

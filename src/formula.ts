@@ -128,10 +128,24 @@ export class Avrg extends Formula {
 
 export class Arithmetic extends Formula {
 
-    constructor(public arg1: Cell | number, public op: String, public arg2: Cell | number) {
+    constructor(public arg1: Cell | number | Formula, public op: String, public arg2: Cell | number | Formula) {
         let as: Array<Cell> = []
         if (arg1 instanceof Cell) as.push(arg1)
         if (arg2 instanceof Cell) as.push(arg2)
+        if (arg1 instanceof Formula) {
+            let aux: Formula = arg1 as Formula
+        
+                for(let cell of aux.dependsOn) {
+                    as.push(cell)
+                }
+        }
+        if (arg2 instanceof Formula) {
+            let aux: Formula = arg1 as Formula
+        
+                for(let cell of aux.dependsOn) {
+                    as.push(cell)
+                }
+        }
 
         super(as)
     }
@@ -145,6 +159,8 @@ export class Arithmetic extends Formula {
                 throw new SCError('#INVALID!')
             }
             value1 = this.arg1.result as number
+        } else if(this.arg1 instanceof Formula) {
+            value1 = this.arg1.execute() as number
         } else value1 = this.arg1
 
         if (this.arg2 instanceof Cell) {
@@ -152,6 +168,8 @@ export class Arithmetic extends Formula {
                 throw new SCError('#INVALID!')
             }
             value2 = this.arg2.result as number
+        } else if(this.arg2 instanceof Formula) {
+            value2 = this.arg2.execute() as number
         } else value2 = this.arg2
 
 
