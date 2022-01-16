@@ -17,6 +17,7 @@ type Grammar = {
     cell: Cell
     assign: Cmd.Assign
     formula: F.Formula
+    lhFormula: F.Formula
     string: string
 
     // operations
@@ -60,8 +61,7 @@ export default class Parser {
             help: () => string("/help").map(_ => new Cmd.Help()),
             dependencies: () => string("/dependencies").map(_ => new Cmd.DisplayDependencies(this.table)),
 
-
-            assign: l => seq(l.cell, string("="), alt(l.string, l.formula, l.number))
+            assign: l => seq(l.cell, string("="), alt(l.formula, l.string, l.number))
                 .map(([cell, _, value]) => new Cmd.Assign(this.table, cell, value)),
 
             string: () => P.regexp(/[A-Za-z0-9 _\.,!?'/$]*/).wrap(string("\""), string("\""))
@@ -70,12 +70,13 @@ export default class Parser {
             number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n)),
 
             // formulas
-            formula: l => alt(l.if, l.artm, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
+            formula: l => alt(l.artm, l.if, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
+            lhFormula: l => alt(l.if, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
 
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
 
-            artm: l => seq(alt(l.cell, l.number), l.arithmeticOp, alt(l.cell, l.number))
+            artm: l => seq(alt(l.cell, l.lhFormula, l.number), l.arithmeticOp, alt(l.cell, l.formula, l.number))
                 .map(([arg1, op, arg2]) => new F.Arithmetic(arg1, op, arg2)),
 
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))

@@ -127,34 +127,41 @@ export class Avrg extends Formula {
 
 export class Arithmetic extends Formula {
 
-    constructor(public arg1: Cell | number, public op: ArithmeticOperator, public arg2: Cell | number) {
-        let as: Array<Cell> = []
-        if (arg1 instanceof Cell) as.push(arg1)
-        if (arg2 instanceof Cell) as.push(arg2)
+    args: (Cell | Formula | number)[]
 
+    constructor(arg1: Cell | Formula | number, public op: ArithmeticOperator, arg2: Cell | Formula | number) {
+        let as: Cell[] = []
+        for (let i = 0; i < arguments.length; i++) {
+            const arg = arguments[i]
+
+            if (arg instanceof Cell)
+                as.push(arg)
+            else if (arg instanceof Formula)
+                as.push(...arg.dependsOn)
+        }
         super(as)
+
+        this.args = [arg1, arg2]
     }
 
     execute(): number {
-        let value1: number
-        let value2: number
+        const values: number[] = this.args.map(arg => {
+            let value: number | string
 
-        if (this.arg1 instanceof Cell) {
-            if (isNaN(+this.arg1.result)) {
+            if (arg instanceof Cell)
+                value = arg.result
+            else if (arg instanceof Formula)
+                value = arg.run()
+            else
+                value = arg
+
+            if (typeof value != "number")
                 throw new SCError('#INVALID!')
-            }
-            value1 = this.arg1.result as number
-        } else value1 = this.arg1
 
-        if (this.arg2 instanceof Cell) {
-            if (isNaN(+this.arg2.result)) {
-                throw new SCError('#INVALID!')
-            }
-            value2 = this.arg2.result as number
-        } else value2 = this.arg2
+            return value
+        })
 
-
-        return eval(value1.toString() + ' ' + this.op + ' ' + value2.toString());
+        return eval(`${values[0]} ${this.op} ${values[1]}`)
     }
 }
 
@@ -193,7 +200,7 @@ export class If extends Formula {
         if (arg instanceof Cell)
             return arg.result
         else if (arg instanceof Formula)
-            return arg.execute()
+            return arg.run()
         return arg
     }
 }
