@@ -1,0 +1,2 @@
+type BooleanOperator = '>' | '>=' | '<' | '<=' | '==' | '!='
+type ArithmeticOperator = '+' | '-' | '/' | '*'

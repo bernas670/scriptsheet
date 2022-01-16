@@ -127,7 +127,7 @@ export class Avrg extends Formula {
 
 export class Arithmetic extends Formula {
 
-    constructor(public arg1: Cell | number, public op: string, public arg2: Cell | number) {
+    constructor(public arg1: Cell | number, public op: ArithmeticOperator, public arg2: Cell | number) {
         let as: Array<Cell> = []
         if (arg1 instanceof Cell) as.push(arg1)
         if (arg2 instanceof Cell) as.push(arg2)
@@ -158,14 +158,14 @@ export class Arithmetic extends Formula {
     }
 }
 
-type IfArg = string | number | Cell | Formula
+export type IfArg = string | number | Cell | Formula
 
 export class If extends Formula {
 
     args: IfArg[]
     outs: IfArg[]
 
-    constructor(arg1: IfArg, public op: string, arg2: IfArg, out1: IfArg, out2: IfArg) {
+    constructor(arg1: IfArg, public op: BooleanOperator, arg2: IfArg, out1: IfArg, out2: IfArg) {
         let as: Cell[] = []
         for (let i = 0; i < arguments.length; i++) {
             const arg = arguments[i]
@@ -183,7 +183,7 @@ export class If extends Formula {
 
     execute(): string | number {
         const vals: (string | number)[] = this.args.map(arg => this.getArgValue(arg))
-        const result = eval(`${vals[0]} ${this.op} ${vals[1]}`)
+        const result = eval(`"${vals[0]}" ${this.op} "${vals[1]}"`)
         const output = result ? this.outs[0] : this.outs[1]
 
         return this.getArgValue(output)

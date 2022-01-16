@@ -5,7 +5,6 @@ import Table from './table'
 import Cell from './cell'
 
 import * as Cmd from './command'
-import { kill } from 'process'
 
 
 type Grammar = {
@@ -27,8 +26,17 @@ type Grammar = {
     sub: F.Sub
     avg: F.Avrg
     if: F.If
+    ifArg: F.IfArg
+
     cellRef: F.CellReference
     artm: F.Arithmetic
+
+    // symbols
+    comma: string
+
+    // operators
+    booleanOp: BooleanOperator
+    arithmeticOp: ArithmeticOperator
 
     // utils
     range: Cell[]
@@ -67,7 +75,7 @@ export default class Parser {
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
 
-            artm: l => seq(alt(l.cell, l.number), P.regexp(/\+|-|\*|\//), alt(l.cell, l.number))
+            artm: l => seq(alt(l.cell, l.number), l.arithmeticOp, alt(l.cell, l.number))
                 .map(([arg1, op, arg2]) => new F.Arithmetic(arg1, op, arg2)),
 
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
@@ -84,10 +92,13 @@ export default class Parser {
 
             avg: l => seq(string('avg'), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Avrg(...range)),
-            if: l => seq(string("if"), string("("), alt(l.formula, l.cell, l.number),
-                P.regexp(/\>|<|==|!=|>=|<=|\//), alt(l.formula, l.cell, l.number), string(","),
-                alt(l.formula, l.cell, l.string, l.number), string(","), alt(l.formula, l.cell, l.string, l.number), string(")")) 
-                .map(([_, __, arg1, op, arg2, ___, result1, ____, result2, _____]) => new F.If(arg1, op, arg2, result1, result2)),
+
+            ifArg: l => alt(l.cell, l.formula, l.number, l.string),
+            if: l => seq(
+                string("if"),
+                seq(l.ifArg, l.booleanOp, l.ifArg.skip(l.comma), l.ifArg.skip(l.comma), l.ifArg)
+                    .wrap(string("("), string(")"))
+            ).map(([_, [arg1, op, arg2, out1, out2]]) => new F.If(arg1, op, arg2, out1, out2)),
 
             // 
             range: l => seq(l.cell, string(':'), l.cell)
@@ -95,6 +106,13 @@ export default class Parser {
 
             cell: l => seq(P.regexp(/[a-z]+/i), l.int)
                 .map(([col, row]) => this.table.getCell(row, col)),
+
+            // symbols
+            comma: () => P.string(","),
+
+            // operators
+            booleanOp: () => P.regexp(/\>|<|==|!=|>=|<=|\//).map(op => op as BooleanOperator),
+            arithmeticOp: () => P.regexp(/\+|-|\*|\//).map(op => op as ArithmeticOperator),
 
             // literals
             int: () => P.regexp(/[0-9]+/).map(n => parseInt(n, 10)),
