@@ -3,7 +3,6 @@ import Table from "./table"
 
 import repl from "repl"
 import { Context } from "vm"
-import Cell from "./cell"
 import { SCError } from "./error"
 import * as Cmd from './command'
 
@@ -37,41 +36,10 @@ export default class ScriptSheet {
                 error = e
         }
 
-        callback(error, undefined)
+        callback(null, undefined)
     }
 
     completer(line: string) {
-
-
-        const info = {
-            commands: [
-                {
-                    name: "help",
-                    description: "very helpful, such wow",
-                }
-            ],
-            functions: [
-                {
-                    name: "sum",
-                    description: "Sums the values of a range of cells",
-                    function: (range: Cell[]) => {
-
-                    },
-                    return_type: "sls"
-
-                }
-            ]
-        }
-
-        // if line[0] == "/"
-        // look for command matches
-        // else if line.includes("=")
-        // check if what comes before "=" is a cell reference
-        // if not cell reference
-        // print error, formula is already wrong
-        // else
-        // 
-
         var completions = 'help hello hi abc argh'.split(' ')
         var hits = completions.filter(function (c) {
             if (c.indexOf(line) == 0) {

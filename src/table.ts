@@ -8,7 +8,7 @@ export default class Table {
         for (let row = 1; row <= rows; row++) {
             let tmpRow: Cell[] = []
             for (let i = 0; i < cols; i++) {
-                let col = String.fromCharCode(65 + i)
+                const col = String.fromCharCode(65 + i)
                 tmpRow.push(new Cell(row, col))
             }
             this.cells.push(tmpRow)
@@ -54,8 +54,8 @@ export default class Table {
     getRange(start: {row: number, col: string}, end: {row: number, col: string}): Cell[] {
         let result: Cell[] = []
 
-        let startCol = start.col.toUpperCase().charCodeAt(0) - 65
-        let endCol = end.col.toUpperCase().charCodeAt(0) - 65
+        const startCol = start.col.toUpperCase().charCodeAt(0) - 65
+        const endCol = end.col.toUpperCase().charCodeAt(0) - 65
 
         for (let row = start.row; row <= end.row; row++) {
             for (let col = startCol; col <= endCol; col++) {
@@ -67,8 +67,8 @@ export default class Table {
     }
 
     checkCellRef(cell: string) {
-        let row = parseInt(cell[1], 10)
-        let col = cell.toUpperCase().charCodeAt(0) - 65
+        const row = parseInt(cell[1], 10)
+        const col = cell.toUpperCase().charCodeAt(0) - 65
 
         return row > 0 && row <= this.rows && col >= 0 && col <= this.cols
     }
