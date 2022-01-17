@@ -13,7 +13,7 @@ export default class ScriptSheet {
     parser: Parser
 
     constructor() {
-        this.table = new Table(4, 4)
+        this.table = new Table(10, 20)
         this.parser = new Parser(this.table)
     }
 
@@ -51,7 +51,6 @@ export default class ScriptSheet {
 
     start() {
         console.log("> Welcome to scriptsheet !")
-        console.log("> Here are some helpful commands to get you started :")
 
         repl.start({
             prompt: 'scriptsheet > ',

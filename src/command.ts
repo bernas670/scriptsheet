@@ -33,3 +33,18 @@ export class DisplayDependencies extends Command {
         this.table.displayDependencies()
     }
 }
+
+export class DisplayTable extends Command {
+    constructor(public table: Table) { super() }
+
+    execute(): void {
+        this.table.display()
+    }
+}
+
+export class Clear extends Command {
+    constructor() { super() }
+    execute(): void {
+        console.clear()
+    }
+}

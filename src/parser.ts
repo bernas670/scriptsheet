@@ -13,6 +13,8 @@ type Grammar = {
     // commands
     help: Cmd.Help
     dependencies: Cmd.DisplayDependencies
+    table: Cmd.DisplayTable
+    clear: Cmd.Clear
 
     cell: Cell
     assign: Cmd.Assign
@@ -55,11 +57,13 @@ export default class Parser {
 
     constructor(public table: Table) {
         this.language = P.createLanguage<Grammar>({
-            command: l => alt(l.help, l.dependencies, l.assign).map((cmd) => cmd),
+            command: l => alt(l.help, l.dependencies, l.table, l.clear, l.assign).map((cmd) => cmd),
 
             // commands
             help: () => string("/help").map(_ => new Cmd.Help()),
             dependencies: () => string("/dependencies").map(_ => new Cmd.DisplayDependencies(this.table)),
+            table: () => string("/table").map(_ => new Cmd.DisplayTable(this.table)),
+            clear: () => string("/clear").map(_ => new Cmd.Clear()),
 
             assign: l => seq(l.cell, string("="), alt(l.formula, l.string, l.number))
                 .map(([cell, _, value]) => new Cmd.Assign(this.table, cell, value)),
