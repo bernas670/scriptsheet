@@ -76,8 +76,8 @@ export default class Parser {
             cellRef: l => l.cell
                 .map((cell) => new F.CellReference(cell)),
 
-            artm: l => seq(alt(l.cell, l.lhFormula, l.number), l.arithmeticOp, alt(l.cell, l.formula, l.number))
-                .map(([arg1, op, arg2]) => new F.Arithmetic(arg1, op, arg2)),
+            artm: l => seq(alt(l.cell, l.lhFormula, l.number), l.arithmeticOp, alt(l.cell, l.lhFormula, l.number), seq(l.arithmeticOp, alt(l.cell, l.lhFormula, l.number)).many())
+                .map(([arg1, op, arg2, overflow]) => new F.Arithmetic(arg1, op, arg2, overflow)),
 
             sum: l => seq(string("sum"), l.range.wrap(string("("), string(")")))
                 .map(([_, range]) => new F.Sum(...range)),

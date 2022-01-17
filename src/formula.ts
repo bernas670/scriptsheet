@@ -125,23 +125,39 @@ export class Avrg extends Formula {
     }
 }
 
+type ArtmOverflow = [ArithmeticOperator, Cell | Formula | number][]
+
 export class Arithmetic extends Formula {
 
     args: (Cell | Formula | number)[]
+    ops: ArithmeticOperator[]
 
-    constructor(arg1: Cell | Formula | number, public op: ArithmeticOperator, arg2: Cell | Formula | number) {
+    constructor(arg1: Cell | Formula | number, op: ArithmeticOperator, arg2: Cell | Formula | number, overflow: ArtmOverflow) {
         let as: Cell[] = []
-        for (let i = 0; i < arguments.length; i++) {
-            const arg = arguments[i]
+        let ops: ArithmeticOperator[] = []
+        let args: (Cell | Formula | number)[] = []
+
+        let allArgs = [arg1, op, arg2, ...overflow.reduce((acc: (Cell | Formula | number | ArithmeticOperator)[], [op, arg]) => [...acc, op, arg], [])]
+
+        for (let i = 0; i < allArgs.length; i++) {
+            const arg = allArgs[i]
+
+            if (typeof arg == 'string' && ['+', '-', '/', '*'].includes(arg)) {
+                ops.push(arg)
+                continue
+            }
 
             if (arg instanceof Cell)
                 as.push(arg)
             else if (arg instanceof Formula)
                 as.push(...arg.dependsOn)
+
+            args.push(arg as (Cell | Formula | number))
         }
         super(as)
 
-        this.args = [arg1, arg2]
+        this.ops = ops
+        this.args = args
     }
 
     execute(): number {
@@ -161,7 +177,8 @@ export class Arithmetic extends Formula {
             return value
         })
 
-        return eval(`${values[0]} ${this.op} ${values[1]}`)
+        const evalStr: string = values.reduce((acc, value, i) => `${acc} ${value} ${i < this.ops.length ? `${this.ops[i]}` : ''}`, '')
+        return eval(evalStr)
     }
 }
 
