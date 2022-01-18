@@ -1,31 +1,66 @@
 import Cell from './cell'
 import { SCError } from './error'
 
+/**
+ * Abstract class that serves as base to implement new formulas.
+ */
 export abstract class Formula {
 
+    /** Formula's dependencies */
     dependsOn: Set<Cell>
+
+    /**
+     * @constructor Create new Formula
+     * @param dependsOn Formula's dependencies
+     */
     constructor(dependsOn: Cell[]) {
         this.dependsOn = new Set<Cell>(dependsOn)
     }
 
+    /**
+     * Executes the formula.
+     * 
+     * This is the method to overload when extending Formula. Use to implement the desired operation.
+     * 
+     * **Warning:** do not use this method to get the formula's value.
+     * Use {@link run `Formula.run()`} instead.
+     * 
+     * @returns formula's output
+     */
     execute(): number | string {
         return ""
     }
 
+    /**
+     * Checks for cyclic dependencies.
+     * 
+     * Throws a `SCError` in case a cycle is detected.
+     * 
+     * @param cell cell that is currently being visited
+     * @param visited cell's that have already been visited
+     */
     isCyclic(cell: Cell | undefined, visited: Set<Cell>) {
         if (cell !== undefined && visited.has(cell)) {
             throw new SCError('#INVALID!')
         }
 
         for (let c of this.dependsOn) {
-            if (c._formula === undefined)
+            if (c.formula === undefined)
                 continue
 
             let updatedVisited = cell !== undefined ? visited.add(cell) : visited
-            c._formula.isCyclic(c, updatedVisited)
+            c.formula.isCyclic(c, updatedVisited)
         }
     }
 
+    /**
+     * Executes a formula. 
+     * 
+     * Catches errors thrown during the formula's execution, unlike {@link execute Formula.execute()}.
+     * 
+     * @param checkCycle run cyclic dependency check
+     * @returns formula's output
+     */
     run(checkCycle = false): number | string {
         let result: number | string = ''
 

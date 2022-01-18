@@ -7,6 +7,9 @@ export abstract class Command {
     execute() { }
 }
 
+/**
+ * Assigns a new value to a cell
+ */
 export class Assign extends Command {
     constructor(public table: Table, public cell: Cell, public value: string | number | F.Formula) {
         super()
@@ -18,6 +21,9 @@ export class Assign extends Command {
     }
 }
 
+/**
+ * Executes the `/help` command
+ */
 export class Help extends Command {
     constructor() { super() }
 
@@ -26,6 +32,10 @@ export class Help extends Command {
     }
 }
 
+/**
+ * Executes the `/dependencies` command.
+ * Displays cell dependencies table
+ */
 export class DisplayDependencies extends Command {
     constructor(public table: Table) { super() }
 
@@ -34,6 +44,9 @@ export class DisplayDependencies extends Command {
     }
 }
 
+/**
+ * Displays the spreadsheet's table
+ */
 export class DisplayTable extends Command {
     constructor(public table: Table) { super() }
 
@@ -42,6 +55,9 @@ export class DisplayTable extends Command {
     }
 }
 
+/**
+ * Clears the console
+ */
 export class Clear extends Command {
     constructor() { super() }
     execute(): void {

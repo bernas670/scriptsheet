@@ -20,7 +20,6 @@ type Grammar = {
     assign: Cmd.Assign
     formula: F.Formula
     lhFormula: F.Formula
-    string: string
 
     // operations
     sum: F.Sum
@@ -30,25 +29,23 @@ type Grammar = {
     avg: F.Avrg
     if: F.If
     ifArg: F.IfArg
-
-    cellRef: F.CellReference
     artm: F.Arithmetic
-
-    // symbols
-    comma: string
+    cellRef: F.CellReference
+    
+    // utils
+    range: Cell[]
 
     // operators
     booleanOp: BooleanOperator
     arithmeticOp: ArithmeticOperator
 
-    // utils
-    range: Cell[]
+    // symbols
+    comma: string
 
     // literals
     int: number
     number: number
-
-
+    string: string
 }
 
 export default class Parser {
@@ -67,11 +64,6 @@ export default class Parser {
 
             assign: l => seq(l.cell, string("="), alt(l.formula, l.string, l.number))
                 .map(([cell, _, value]) => new Cmd.Assign(this.table, cell, value)),
-
-            string: () => P.regexp(/[A-Za-z0-9 _\.,!?'/$]*/).wrap(string("\""), string("\""))
-                .map((str) => str),
-
-            number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n)),
 
             // formulas
             formula: l => alt(l.artm, l.if, l.sum, l.mul, l.div, l.sub, l.avg, l.cellRef),
@@ -121,6 +113,8 @@ export default class Parser {
 
             // literals
             int: () => P.regexp(/[0-9]+/).map(n => parseInt(n, 10)),
+            string: () => P.regexp(/[A-Za-z0-9 _\.,!?'/$]*/).wrap(string("\""), string("\"")).map((str) => str),
+            number: () => P.regexp(/[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/).map(n => parseFloat(n)),
         })
     }
 

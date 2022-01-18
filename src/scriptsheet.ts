@@ -10,13 +10,28 @@ import * as Cmd from './command'
 export default class ScriptSheet {
 
     table: Table
+    /** `Parser` used to evaluate user's input */
     parser: Parser
 
+    /**
+     * @constructor 
+     * Initializes `table` and `parser`
+     */
     constructor() {
         this.table = new Table(10, 20)
         this.parser = new Parser(this.table)
     }
 
+    /**
+     * Evaluates the user's input. 
+     * 
+     * Input is parsed by `parser` and the resulting `Command`s are executed.
+     * 
+     * @param cmd user input
+     * @param _context 
+     * @param _filename 
+     * @param callback method called when user presses `Enter`
+     */
     eval(cmd: string, _context: Context, _filename: string, callback: (err: Error | null, result: any) => void) {
         let error = null
 
@@ -39,6 +54,12 @@ export default class ScriptSheet {
         callback(null, undefined)
     }
 
+    /**
+     * Called when user is writing and presses `Tab`, suggests commands based on current input.
+     * 
+     * @param line current user input
+     * @returns array of completion suggestions
+     */
     completer(line: string) {
         var completions = 'help hello hi abc argh'.split(' ')
         var hits = completions.filter(function (c) {
